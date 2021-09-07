@@ -3,20 +3,21 @@ from typing import BinaryIO
 from selenium import webdriver
 from selenium import *
 from sys import argv
+import re
 
 
 def search_keywords_result_count(keywords):
-    request = "https://www.google.com/search?q=allintitle%3A"
+    request = "https://www.google.fr/search?q=allintitle%3A\""
     for index,key in enumerate(keywords):
         if index == 0:
             request += key
         else:
             request += "+" + key
-    print(request)
+    request+="\""
     option = webdriver.ChromeOptions()
     option.add_argument('headless')
     chromeBinary = "C:/Users/remig/Desktop/chromedriver_win32/chromedriver.exe"
-    driver = webdriver.Chrome(chromeBinary, options=option)
+    driver = webdriver.Chrome(chromeBinary)
     driver.get(request)
 
     cookies_btn = driver.find_elements_by_class_name('jyfHyd')
@@ -24,10 +25,15 @@ def search_keywords_result_count(keywords):
     for btn in cookies_btn:
         if btn.text == 'J\'accepte':
             btn.click()
-
     result_stat = driver.find_element_by_id('result-stats')
-    print(str(result_stat.text))
-
+    cleaned_result = str(result_stat.text)
+    m = re.search('Environ (.+?) résultats', cleaned_result)
+    found = ''
+    if m:
+        found = m.group(1)
+    #print(found)
+    x = found.replace(' ','')
+    print(int(x))
 
 if __name__ == "__main__":
     print(argv[1:])
